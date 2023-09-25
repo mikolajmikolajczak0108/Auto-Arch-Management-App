@@ -1,0 +1,209 @@
+/* Nowe style dla skrzynki odbiorczej */
+.inbox-icon {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 50px;
+    cursor: pointer;
+    z-index: 999;
+    transition: transform 0.3s ease;
+}
+
+.inbox-icon:hover {
+    transform: scale(1.1);
+}
+
+.inbox-icon img {
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+/* Animacja */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+/* Ogólne style panelu */
+.inbox {
+    display: none;
+    position: fixed;
+    right: 20px;
+    bottom: 80px;
+    width: 600px;
+    max-height: 600px;
+    background-color: #f1f1f1;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 998;
+    padding: 10px;
+    overflow-y: auto;
+        animation: fadeIn 0.5s ease-in-out;
+}
+.inbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+/* Style formularza */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+.full-width-label {
+    grid-column: 1 / -1;
+}
+.form-grid input,
+.form-grid textarea,
+.form-grid select {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+}
+.inbox-title {
+    margin: 0 0 10px;
+    padding: 0;
+    font-size: 1.2em;
+}
+
+.inbox-control-button {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 20px;
+    margin-right: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.inbox-control-button:hover {
+    background-color: #0056b3;
+}
+
+/* Style wiadomości */
+.message-item {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.3s ease-in-out;
+}
+
+
+.message-header {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+}
+
+.message-sender {
+    color: #333;
+    font-size: 1.1em;
+}
+
+.message-project {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.message-content {
+    color: #666;
+}
+
+.reply-button {
+    background-color: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    float: right;
+}
+
+.reply-button:hover {
+    background-color: #0056b3;
+}
+/* Usunięcie ramek i tła dla etykiet */
+.form-grid label {
+    border: none;
+    background: none;
+    padding: 0;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+/* Animacja dla panelu wiadomości */
+@keyframes expandAnimation {
+    from {
+        max-height: 0;
+        opacity: 0;
+    }
+    to {
+        max-height: 400px;
+        opacity: 1;
+    }
+}
+
+@keyframes collapseAnimation {
+    from {
+        max-height: 400px;
+        opacity: 1;
+    }
+    to {
+        max-height: 0;
+        opacity: 0;
+    }
+}
+
+.inbox.expanded {
+    animation: expandAnimation 0.3s ease forwards;
+}
+
+.inbox.collapsed {
+    animation: collapseAnimation 0.3s ease forwards;
+}
+.form-grid input,
+.form-grid textarea,
+.form-grid select,
+.form-grid [type="file"] {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #007bff;
+    background: #fff;
+    color: #333;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+}
+
+
+/* Style dla nowej wiadomości */
+.new-message-form {
+    background-color: #f1f1f1;
+    border-top: 1px solid #ccc;
+    padding: 10px;
+    color: #333;
+    border-radius: 0 0 12px 12px;
+    display:none;
+}
+
+.send-button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.send-button:hover {
+    background-color: #0056b3;
+}

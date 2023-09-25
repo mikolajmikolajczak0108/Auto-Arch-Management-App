@@ -1,0 +1,143 @@
+/* General Styles */
+.container {
+  font-family: Arial, sans-serif;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes avatarEntrance {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Card Styles */
+.project-card,
+.profile-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  animation: fadeInUp 1s forwards 0.2s;
+  transition: all 0.3s ease-in-out;
+}
+
+.project-card:hover,
+.profile-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+}
+
+.completed,
+.gray-out {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  background-color: gray;
+  color: white;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.gray-out {
+  background-color: #f0f0f0 !important;
+}
+
+/* Profile Card */
+.profile-card {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+}
+
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+}
+
+.profile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-success {
+    transition: all 0.3s ease-in-out;
+    background-color: blue !important;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Project Cards */
+.card-img-top {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.card-img-top:hover {
+    opacity: 0.8;
+}
+
+.priority-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.priority-label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+}
+
+.priority-bar-base {
+  background-color: #eee;
+  height: 10px;
+  border-radius: 5px;
+}
+
+.priority-bar {
+  height: 10px;
+  border-radius: 5px;
+  width: 0;
+}
+
+.priority-high {
+  background-color: red;
+  width: 100%;
+}
+
+.priority-medium {
+  background-color: orange;
+  width: 66%;
+}
+
+.priority-low {
+  background-color: green;
+  width: 33%;
+}

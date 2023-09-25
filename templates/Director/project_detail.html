@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .card {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+
+
+
+
+</style>
+<div class="container mt-4">
+    <h1 class="text-center">{{ project.project_name }}</h1>
+    <hr>
+
+    <!-- Basic Details -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Podstawowe informacje</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Priorytet: </strong><span
+                    class="badge {% if project.priority == 'high' %}badge-danger{% elif project.priority == 'medium' %}badge-warning{% elif project.priority == 'low' %}badge-success{% endif %}">{% if project.priority == 'high' %}Wysoki{% elif project.priority == 'medium' %}Średni{% elif project.priority == 'low' %}Niski{% endif %}</span>
+            </p>
+            <p><strong>Data rozpoczęcia: </strong>{{ project.start_date }}</p>
+            <p><strong>Data zakończenia: </strong>{{ project.end_date }}</p>
+            <p><strong>Status: </strong>{{ project.is_completed|yesno:"Zakończony,Nie zakończony" }}</p>
+        </div>
+    </div>
+
+    <!-- Files -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Pliki projektu</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for file in files %}
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="ikona_odpowiadajaca_formatowi_pliku.jpg" alt="Ikona pliku" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ file.name }}</h5>
+                            <p class="card-text">{{ file.description }}</p>
+                            <a href="#" data-file-id="{{ file.id }}" class="btn btn-danger delete-file">Usuń</a>
+                            <a href="#" data-file-id="{{ file.id }}" class="btn btn-warning replace-file">Podmień</a>
+
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <form id="upload-files-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="upload_files" value="true">
+                <input type="file" name="upload_files" multiple>
+                <button type="submit" class="btn btn-primary">Dodaj pliki</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    document.querySelectorAll('.delete-file').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const fileId = e.target.getAttribute('data-file-id');
+
+            const formData = new FormData();
+            formData.append('delete_file_id', fileId);
+
+            fetch(`/director/projects/{{ project.project_id }}/`, {  // Załóżmy, że `project_id` jest dostępny jako zmienna globalna
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            }).then(response => {
+                if(response.ok) {
+                    window.location.reload();  // Przeładuj stronę po pomyślnym usunięciu
+                } else {
+                    console.error('Error deleting the file');
+                }
+            });
+        });
+    });
+
+    document.querySelectorAll('.replace-file').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const fileId = e.target.getAttribute('data-file-id');
+
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+
+            fileInput.onchange = function() {
+                const file = fileInput.files[0];
+                const formData = new FormData();
+                formData.append('replace_file_id', fileId);
+                formData.append('new_file', file);
+
+                fetch(`/director/projects/{{ project.project_id }}/`, {  // Załóżmy, że `project_id` jest dostępny jako zmienna globalna
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                }).then(response => {
+                    if(response.ok) {
+                        window.location.reload();  // Przeładuj stronę po pomyślnej zamianie
+                    } else {
+                        console.error('Error replacing the file');
+                    }
+                });
+            };
+
+            fileInput.click();  // Otwórz okienko wyboru pliku
+        });
+    });
+});
+
+
+</script>
+    <!-- Investors -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Inwestorzy</h4>
+        </div>
+        <div class="card-body">
+            <ul>
+                {% for investor in investors %}
+                <li>{{ investor.investor_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Employees -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Pracownicy</h4>
+        </div>
+        <div class="card-body">
+            <h5>Pracownicy w projekcie</h5>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Imię i nazwisko</th>
+                    <th>Rola</th>
+                    <th>Akcje</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for member in project_members %}
+                <tr>
+                    <td>{{ member.user.username }}</td>
+                    <td>{{ member.user.user_role }}</td>
+                    <td>
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            <input type="hidden" name="remove_member_id" value="{{ member.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Usuń</button>
+                        </form>
+
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <hr>
+
+            <h5>Dodaj pracownika do projektu</h5>
+            <form method="post" action="" id="addMemberForm">
+                {% csrf_token %}
+                <input type="hidden" name="project" value="{{ project.project_id }}">
+                {{ add_member_form.user.label_tag }} {{ add_member_form.user }}
+                <button type="submit" class="btn btn-primary">Dodaj</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Display Project Comments -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Komentarze</h4>
+        </div>
+        <div class="card-body">
+            {% for comment in project_comments %}
+            <div>
+                <strong>{{ comment.user.username }}</strong>
+                <small>{{ comment.comment_date }}</small>
+                <p>{{ comment.comment_text }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Add Comment -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Dodaj komentarz</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" action="" id="add-comment-form">
+                {% csrf_token %}
+                <input type="hidden" name="add_comment" value="true">
+                <div class="form-group">
+                    <textarea class="form-control rounded" rows="4" placeholder="Twoja wiadomość..."
+                              name="{{ add_comment_form.comment_text.name }}"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary rounded">Dodaj</button>
+            </form>
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+

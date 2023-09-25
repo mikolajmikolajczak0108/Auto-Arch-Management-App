@@ -1,0 +1,108 @@
+ .completed {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+    background-color: gray;
+    color: white;
+    padding: 5px;
+    border-radius: 3px;
+  }
+
+  .gray-out {
+    background-color: #f0f0f0 !important;
+  }
+
+.priority-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.priority-label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+}
+
+.priority-bar-base {
+  background-color: #eee;
+  height: 10px;
+  border-radius: 5px;
+}
+
+.priority-bar {
+  height: 10px;
+  border-radius: 5px;
+  width: 0; /* Initially zero */
+}
+
+.priority-high {
+  background-color: red;
+  width: 100%; /* Fills the entire bar */
+}
+
+.priority-medium {
+  background-color: orange;
+  width: 66%; /* Fills two-thirds of the bar */
+}
+
+.priority-low {
+  background-color: green;
+  width: 33%; /* Fills one-third of the bar */
+}
+  /* Existing Styles */
+  .card {
+    border-radius: 15px;
+    /* Animation for card appearing */
+    opacity: 0;
+    transform: translateY(50px);
+    animation: appear 0.5s ease-out forwards;
+  }
+
+  .card-img-top {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .card-title {
+    font-size: 1.4rem;
+  }
+
+  .container {
+    max-width: 1500px;
+    height: 200px !important;
+  }
+
+  /* Hover Animation for Cards */
+  .card:hover {
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+  }
+
+  /* Hover Animation for Button */
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    transform: translateY(-2px);
+  }
+.add-employee-section {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.add-employee-section h2 {
+  margin-bottom: 20px;
+}
+
+  /* Keyframes for card appearing animation */
+  @keyframes appear {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }

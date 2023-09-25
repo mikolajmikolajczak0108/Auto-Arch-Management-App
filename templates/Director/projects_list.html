@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static '/css/projects.css' %}">
+<div class="container mt-5">
+  <h1 class="mb-4">Lista Projektów</h1>
+    <!-- Sekcja filtrów i wyszukiwania -->
+  <!-- Sekcja filtrów i wyszukiwania -->
+  <form class="form-inline mb-3" method="get">
+    <div class="form-group mr-2">
+      <label for="filter_time" class="mr-1">Filtr czasu:</label>
+      <select class="form-control" name="filter_time">
+        <option value="" {% if request.GET.filter_time == "" %}selected{% endif %}>Wszystkie</option>
+        <option value="half_year" {% if request.GET.filter_time == "half_year" %}selected{% endif %}>Ostatnie 6 miesięcy</option>
+        <option value="year" {% if request.GET.filter_time == "year" %}selected{% endif %}>Ostatni rok</option>
+        <option value="archival" {% if request.GET.filter_time == "archival" %}selected{% endif %}>Archiwalne</option>
+      </select>
+    </div>
+
+    <div class="form-group mr-2">
+      <label for="filter_priority" class="mr-1">Priorytet:</label>
+      <select class="form-control" name="filter_priority">
+        <option value="" {% if request.GET.filter_priority == "" %}selected{% endif %}>Wszystkie</option>
+        <option value="low" {% if request.GET.filter_priority == "low" %}selected{% endif %}>Niski</option>
+        <option value="medium" {% if request.GET.filter_priority == "medium" %}selected{% endif %}>Średni</option>
+        <option value="high" {% if request.GET.filter_priority == "high" %}selected{% endif %}>Wysoki</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="search_term" class="mr-1">Szukaj:</label>
+      <input type="text" class="form-control" name="search_term" value="{{ request.GET.search_term }}">
+    </div>
+
+    <button type="submit" class="btn btn-primary ml-2">Filtruj</button>
+  </form>
+  <div class="row">
+{% for project in projects %}
+  <div class="col-md-4">
+            <a style="text-decoration: none; color:black;" href="{% url 'project_detail' project.project_id %}">
+    <div class="card mb-4 {% if project.is_completed %}gray-out{% endif %}">
+      <!-- Show the Completed label if the project is archived -->
+      {% if project.is_completed %}
+        <div class="completed">Zakończony</div>
+      {% endif %}
+
+      <img class="card-img-top" src="{% static 'media/projects/default.png' %}" alt="{{ project.project_name }}">
+      <div class="card-body">
+        <h5 class="card-title">{{ project.project_name }}</h5>
+
+        <!-- Priority Bar -->
+  <!-- Priority Bar and Label -->
+  <div class="priority-container">
+<span class="priority-label">Priorytet:
+  {% if project.priority == 'high' %}
+    Wysoki
+  {% elif project.priority == 'medium' %}
+    Średni
+  {% elif project.priority == 'low' %}
+    Niski
+  {% else %}
+    Nieznany
+  {% endif %}
+</span>
+    <div class="priority-bar-base">
+      <div class="priority-bar
+                  {% if project.priority == 'high' %}priority-high{% endif %}
+                  {% if project.priority == 'medium' %}priority-medium{% endif %}
+                  {% if project.priority == 'low' %}priority-low{% endif %}">
+      </div>
+    </div>
+  </div>
+            <p class="card-text">
+              <strong>Rozpoczęcie:</strong> {{ project.start_date }}<br>
+              <strong>Zakończenie:</strong> {{ project.end_date }}
+            </p>
+            <p class="card-text">{{ project.description|truncatechars:100 }}</p>
+            <a href="{% url 'project_detail' project.project_id %}" class="btn btn-primary">Szczegóły</a>
+          </div>
+        </div>
+            </a>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <p>Brak projektów.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

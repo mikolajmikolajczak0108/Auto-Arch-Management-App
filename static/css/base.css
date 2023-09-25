@@ -1,0 +1,124 @@
+       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+            * {
+          font-family: 'Inter', sans-serif;
+        }
+        /* Dla normalnego tekstu */
+        p, span, li {
+          font-weight: 400;
+        }
+
+        /* Dla pogrubionego tekstu */
+        strong, h1, h2 {
+          font-weight: 700;
+        }
+
+
+        /* Reset and basic styling */
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Navigation */
+        nav {
+            background: linear-gradient(180deg, #2c3e50, #34495e);
+            color: #ecf0f1;
+            width: 200px;
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
+            padding-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Logo and app title */
+        .logo, .app-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo img {
+            max-width: 50%;
+            height: auto;
+        }
+
+        /* Navigation items */
+        .list-group-item {
+            margin: 10px 0;
+            transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .list-group-item:nth-child(1) {
+            animation: slideIn 0.5s ease 0.2s forwards;
+        }
+
+        .list-group-item:nth-child(2) {
+            animation: slideIn 0.5s ease 0.4s forwards;
+        }
+
+        .list-group-item:nth-child(3) {
+            animation: slideIn 0.5s ease 0.6s forwards;
+        }
+
+        .list-group-item:nth-child(4) {
+            animation: slideIn 0.5s ease 0.8s forwards;
+        }
+        /* Animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Hover state */
+        .list-group-item:hover {
+            background-color: #000;
+            color: #FFF;
+        }
+
+        /* Main content area */
+        main {
+            margin-left: 270px;
+            padding: 20px;
+        }
+
+        /* User info panel */
+        .user-info {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 15px;
+            background-color: #34495e;
+            color: #FFF;
+            border-top: 3px solid #2c3e50;
+            box-shadow: 0px -2px 5px rgba(0,0,0,0.1);
+        }
+
+        .user-info p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .logout-btn {
+            display: inline-block;
+            margin-top: 15px;
+            background-color: #1a1a1a;
+            color: #FFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: #000;
+        }

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nazwa Twojej Aplikacji</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static '/css/inbox.css' %}">
+    <link rel="stylesheet" href="{% static '/css/base.css' %}">
+
+</head>
+<body>
+
+
+<nav>
+    <!-- Logo and app title -->
+    <div class="logo">
+        <img src="{% static 'media/icons/logo.png' %}" alt="Logo Aplikacji">
+    </div>
+    <div class="app-title">
+        <span>AutoArch</span>
+    </div>
+
+    <!-- Navigation items -->
+    <ul class="list-group">
+        {% if user.user_role != 'projektant' %}
+        <li class="list-group-item"><a class="nav-link" href="{% url 'employee_panel' %}">Pracownicy</a></li>
+        <li class="list-group-item"><a class="nav-link" href="{% url 'project_list' %}">Lista projektów</a></li>
+        <li class="list-group-item"><a class="nav-link" href="{% url 'file_viewer' %}">Podgląd Plików</a></li>
+        <li class="list-group-item"><a class="nav-link" href="/director/statistics">Statystyki</a></li>
+        {% endif %}
+        {% if user.user_role == 'projektant' %}
+        <li class="list-group-item"><a class="nav-link" href="/employee/projects">Projekty</a></li>
+        <li class="list-group-item"><a class="nav-link" href="/employee/statistics">Moje statystyki</a></li>
+        <li class="list-group-item"><a class="nav-link" href="/employee/messages">Wiadomości</a></li>
+        {% endif %}
+    </ul>
+
+    <!-- User info panel -->
+    <div class="user-info">
+        <p>Zalogowany jako: {{ user.username }}</p>
+        <div class="session-time"></div>
+        <a class="logout-btn" href="/logout">Wyloguj</a>
+    </div>
+</nav>
+
+<main>
+    {% block content %}
+    {% endblock %}
+</main>
+<!-- Ikona skrzynki odbiorczej -->
+<div class="inbox-icon" id="inbox-icon">
+    <img src="{% static 'media/icons/inbox.png' %}" alt="Inbox">
+</div>
+
+<!-- Panel wiadomości -->
+<div id="inbox-panel" class="inbox">
+    <div class="inbox-header">
+        <h4 class="inbox-title">Wiadomości</h4>
+        <div class="inbox-buttons">
+            <button id="expand-button" class="inbox-control-button">Rozszerz</button>
+            <button id="new-message-btn" class="inbox-control-button">Nowa wiadomość</button>
+        </div>
+    </div>
+    <div id="new-message-form" class="new-message-form">
+        <form id="message-form">
+            {% csrf_token %}
+            <div class="form-grid">
+                <label>{{ form.recipient.label }}</label>
+                {{ form.recipient }}
+                <label>{{ form.project.label }}</label>
+                {{ form.project }}
+                <label class="full-width-label">{{ form.message.label }}</label>
+                {{ form.message }}
+                <label class="full-width-label">{{ form.attachments.label }}</label>
+                {{ form.attachments }}
+            </div>
+            <button type="submit" class="send-button">Wyślij</button>
+        </form>
+    </div>
+    <div id="message-list" class="message-list">
+        {% for message in messages %}
+        <div class="message-item" data-username="{{ message.sender_id.username }}">
+            <div class="message-header">
+                <span class="message-sender">{{ message.sender_id.username }}</span>
+                <span class="message-project">{{ message.project_id.project_name }}</span>
+            </div>
+            <div class="message-content">
+                <span class="message-text">{{ message.message_text }}</span>
+                <button class="reply-button" data-message-id="{{ message.message_id }}">Odpowiedz</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<script>
+
+    // Skrypt do pokazywania i ukrywania panelu wiadomości
+document.addEventListener('DOMContentLoaded', function() {
+
+    const expandButton = document.getElementById('expand-button');
+    expandButton.addEventListener('click', function() {
+        const inboxPanel = document.getElementById('inbox-panel');
+        if (inboxPanel.style.width === '1000px') {
+            inboxPanel.style.width = '600px';
+            inboxPanel.style.height = '600px';  // Resetuj do domyślnej wysokości
+        } else {
+            inboxPanel.style.width = '1000px';
+            inboxPanel.style.height = '800px';  // Zwiększ wysokość
+        }
+    });
+
+    const messageItems = document.querySelectorAll('.message-item');
+    messageItems.forEach(item => {
+        item.addEventListener('click', function() {
+            item.classList.toggle('active');
+        });
+    });
+// Pobierz token CSRF z ciasteczka
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+    const inboxIcon = document.getElementById('inbox-icon');
+    const inboxPanel = document.getElementById('inbox-panel');
+    const newMessageBtn = document.getElementById('new-message-btn');
+    const newMessageForm = document.getElementById('new-message-form');
+
+
+    inboxIcon.addEventListener('click', function() {
+        inboxPanel.style.display = (inboxPanel.style.display === 'none' || inboxPanel.style.display === '') ? 'block' : 'none';
+    });
+
+    newMessageBtn.addEventListener('click', function() {
+        newMessageForm.style.display = (newMessageForm.style.display === 'none' || newMessageForm.style.display === '') ? 'block' : 'none';
+    });
+
+    const messageForm = document.getElementById('message-form');
+
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(messageForm);
+
+        fetch('/send_message/', {
+            method: 'POST',
+            headers: {
+        'X-CSRFToken': csrftoken,  // <-- Upewnij się, że masz dostęp do tokena CSRF
+            },
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Obsłuż odpowiedź
+        })
+        .catch(error => {
+            console.error('Błąd:', error);
+        });
+    });
+    // Nowy kod dla przycisków odpowiedzi
+    const replyButtons = document.querySelectorAll('.reply-button');
+    replyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const messageId = button.getAttribute('data-message-id');
+            const senderUsername = button.parentElement.parentElement.querySelector('.message-sender').textContent;
+            const projectText = button.closest('.message-item').querySelector('.message-project').textContent;
+
+        // Ustaw nadawcę jako odbiorcę w formularzu odpowiedzi
+            // Ustaw nadawcę jako odbiorcę w formularzu odpowiedzi
+            const recipientSelect = document.querySelector('select[name="recipient"]');
+            for (let i = 0; i < recipientSelect.options.length; i++) {
+                if (recipientSelect.options[i].text === senderUsername) {
+                    recipientSelect.selectedIndex = i;
+                    break;
+                }
+            }
+
+            // Ustaw projekt w formularzu odpowiedzi
+            const projectSelect = document.querySelector('select[name="project"]');
+            for (let i = 0; i < projectSelect.options.length; i++) {
+                if (projectSelect.options[i].text === projectText) {
+                    projectSelect.selectedIndex = i;
+                    break;
+                }
+            }
+      // Wyszukaj oryginalną treść wiadomości
+        const originalMessage = button.closest('.message-item').querySelector('.message-text').textContent;
+
+        // Dodaj oryginalną treść wiadomości do pola odpowiedzi
+        const messageTextarea = document.querySelector('textarea[name="message"]');
+        messageTextarea.value = `\n\n---\nOryginalna wiadomość od ${senderUsername}:\n${originalMessage}`;
+        messageTextarea.innerHTML = messageTextarea.value;  // Jeśli używasz innerHTML zamiast value
+
+        // Ustaw atrybut readonly dla oryginalnej wiadomości, jeśli chcesz
+        // messageTextarea.readOnly = true;
+
+        // Pokaż formularz odpowiedzi
+        newMessageForm.style.display = 'block';
+
+        // Ustaw fokus na polu tekstowym wiadomości
+        messageTextarea.focus();
+        messageTextarea.setSelectionRange(0, 0);  // Ustaw kursor na początek
+    });
+});
+});
+
+</script>
+</body>
+<script>
+        let lastActivity = new Date();
+        let sessionTimeout = 15 * 60 * 1000; // 15 minut
+        let checkInterval = 1000; // 1 minuta
+        let sessionElement = null;
+
+        // Funkcja do formatowania daty i czasu
+        function formatTime(date) {
+            return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+        }
+
+        // Funkcja do aktualizowania czasu sesji
+        function updateSessionTime() {
+            let now = new Date();
+            let remainingTime = sessionTimeout - (now - lastActivity);
+            if (remainingTime <= 0) {
+                location.reload();
+            } else {
+                let seconds = Math.floor((remainingTime / 1000) % 60);
+                let minutes = Math.floor((remainingTime / (1000 * 60)) % 60);
+                let hours = Math.floor((remainingTime / (1000 * 60 * 60)) % 24);
+                if (sessionElement) {
+                    sessionElement.textContent = `Czas sesji: ${hours}:${minutes}:${seconds}`;
+                }
+            }
+        }
+
+
+        // Resetuj czas ostatniej aktywności
+        function resetLastActivity() {
+            lastActivity = new Date();
+        }
+
+        // Odczytaj czas ostatniej aktywności z sesji Django (jeśli dostępny)
+        function init() {
+            console.log("Halo");
+            sessionElement = document.querySelector('.session-time');
+            console.log("Session element:", sessionElement);
+            document.addEventListener('click', resetLastActivity);
+            document.addEventListener('mousemove', resetLastActivity);
+            document.addEventListener('keydown', resetLastActivity);
+            setInterval(updateSessionTime, checkInterval);
+        }
+
+        // Inicjalizacja skryptu po załadowaniu strony
+        window.addEventListener('load', init);
+
+
+</script>
+</html>

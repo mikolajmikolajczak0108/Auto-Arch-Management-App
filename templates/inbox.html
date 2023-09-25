@@ -1,0 +1,158 @@
+{% block content %}
+<style>
+    /* Styl dla panelu skrzynki odbiorczej */
+  #inbox-panel {
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Styl dla przycisków */
+  #toggle-inbox-button, #toggle-compose-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+  }
+
+  #toggle-inbox-button:hover, #toggle-compose-button:hover {
+    background-color: #0056b3;
+  }
+
+  /* Styl dla panelu kompozycji */
+  #compose-panel {
+    margin-top: 20px;
+  }
+
+  /* Styl dla pól wyboru i obszaru tekstowego */
+  select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 20px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+
+  /* Styl dla przycisku Wyślij */
+  button[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  button[type=submit]:hover {
+    background-color: #45a049;
+  }
+
+  /* Styl dla panelu wiadomości */
+  #messages-panel {
+    margin-top: 20px;
+  }
+
+  /* Styl dla pojedynczej wiadomości */
+  .message {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Styl dla pustej skrzynki odbiorczej */
+  p {
+    color: #666;
+  }
+</style>
+<div id="inbox-panel">
+  <button id="toggle-inbox-button" onclick="toggleInbox()">Rozwiń / Zwiń Inbox</button>
+  <button id="toggle-compose-button" onclick="toggleCompose()">Napisz nową wiadomość</button>
+
+  <div id="compose-panel" style="display:none;">
+    <form action="{% url 'send_message' %}" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <select name="receiver">
+        {% for user in users %}
+        <option value="{{ user.username }}">{{ user.username }}</option>
+        {% endfor %}
+      </select>
+      <select name="project_name">
+        {% for project in projects %}
+        <option value="{{ project.project_name }}">{{ project.project_name }}</option>
+        {% endfor %}
+      </select>
+      <textarea name="message_text"></textarea>
+      <input type="file" name="attachments" multiple>
+      <button type="submit">Wyślij</button>
+    </form>
+  </div>
+
+<div id="messages-panel">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="message">
+      <span>{{ message.sender_id.username }}</span>
+      <span>{{ message.message_text }}</span>
+      <span>{{ message.send_date }}</span>
+
+      {% if message.attachments %}  <!-- Zakładam, że masz pole attachments w modelu Messages -->
+{% for attachment in message.attachments.all %}
+<div>
+  <a href="{% url 'download_attachment' attachment.file_id.id %}">
+    <img src="{% static 'path/to/favicon.ico' %}" alt="Ikona pliku"> Pobierz załącznik
+  </a>
+</div>
+{% endfor %}
+
+      {% endif %}
+
+    </div>
+    {% endfor %}
+    {% else %}
+    <p>Twoja skrzynka jest pusta</p>
+    {% endif %}
+</div>
+
+<script>
+function refreshPage() {
+  setTimeout(function(){
+    location.reload(true);
+  }, 500);
+}
+function toggleInbox() {
+  var x = document.getElementById("inbox-panel");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+
+function toggleCompose() {
+  var y = document.getElementById("compose-panel");
+  if (y.style.display === "none") {
+    y.style.display = "block";
+  } else {
+    y.style.display = "none";
+  }
+}
+</script>
+
+
+<style>
+  .hidden {
+    display: none;
+  }
+</style>
+{% endblock %}

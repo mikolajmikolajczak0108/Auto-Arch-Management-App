@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pl">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logowanie</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Dodaj tutaj linki do innych plików CSS lub JS, które chcesz użyć -->
+    <style>
+        body {
+            background-image: url('{% static "media/welcome/welcome.png" %}'); /* Użyj odpowiedniej ścieżki do obrazka tła */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: right center;
+            background-attachment: fixed;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: rgba(255, 255, 255, 0.8); /* Dodaj lekko przezroczyste tło do formularza */
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        .welcome-text {
+            animation: slide-left 1s ease-in-out, text-fade-in 2s ease-in-out;
+        }
+
+        .btn-login {
+            animation: slide-up 1s ease-in-out, btn-fade-in 2s ease-in-out;
+        }
+
+        h1 {
+            font-size: 3rem; /* Zwiększ rozmiar czcionki tytułu */
+            color: #ffffff; /* Zmień kolor na biały */
+            text-shadow: 2px 2px 4px #000000; /* Dodaj cień do tekstu */
+            font-family: "Arial Black", Gadget, sans-serif; /* Dodaj efekt WordArt */
+        }
+
+        label {
+            font-size: 1.2rem; /* Zwiększ rozmiar czcionki labeli */
+            font-weight: bold;
+            font-family: "Arial Black", Gadget, sans-serif; /* Dodaj efekt WordArt */
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .btn-login a {
+            background-color: #00004d; /* Zmień kolor tła przycisku */
+            border-color: #00001a; /* Zmień kolor obramowania przycisku */
+            color: #ffffff; /* Zmień kolor tekstu przycisku */
+        }
+
+        .footer {
+            background-color: #000;
+            color: #ffffff;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slide-left {
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes text-fade-in {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slide-up {
+            0% {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes btn-fade-in {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-container col-md-6">
+        <h1 class="text-center">Logowanie</h1>
+        {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Nazwa użytkownika:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Hasło:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-login">Zaloguj się</button>
+        </form>
+    </div>
+</div>
+<div class="footer">
+    Jeśli nie możesz się zalogować, skontaktuj się z administratorem platformy AutoArch w swojej firmie.
+</div>
+<!-- Tutaj możesz dodać inne elementy designu lub animacje -->
+</body>
+</html>

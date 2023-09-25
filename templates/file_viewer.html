@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+/* Stylowanie ogólne */
+
+.cont {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    text-align:center;
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Stylowanie pól wyboru */
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    appearance: none;
+    background-color: #fff;
+    font-size: 16px;
+}
+
+select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0,123,255,0.5);
+}
+
+/* Stylowanie zdjęć */
+.view_img {
+    max-width: 50%;
+    max-height: 500px !important;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Stylowanie dla plików PDF */
+embed {
+
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Stylowanie dla iframe (dla DWG i SKP) */
+iframe {
+    border: none;
+    border-radius: 5px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+}
+
+</style>
+<div class="cont">
+<h2>Wybierz projekt:</h2>
+
+<select id="projectSelect">
+    <option value="">-- Wybierz projekt --</option>
+    {% for project in projects %}
+    <option value="{{ project.project_id }}" {% if project.id|stringformat:"s" == request.GET.project %}selected{% endif %}>{{ project.project_name }}</option>
+    {% endfor %}
+</select>
+
+
+<h2>Wybierz plik:</h2>
+
+<select id="fileSelect">
+    <option value="">-- Wybierz plik --</option>
+    {% for file in files %}
+    <option value="{{ file.id }}" {% if file.id|stringformat:"s" == request.GET.file %}selected{% endif %}>{{ file.name }}</option>
+    {% endfor %}
+</select>
+
+
+{% if selected_file %}
+<h2>Oglądaj plik:</h2>
+{% if file_type in image_types %}
+<img class="view_img" src="{{ selected_file.file.url }}" style="max-width: 100%; height: auto;">
+{% elif file_type == 'application/pdf' %}
+<embed src="{{ selected_file.file.url }}" width="70%" height="1000" type="application/pdf">
+{% elif file_type == 'application/acad' %}
+<!-- Załadowanie pliku DWG używając ShareCAD (przykładowo) -->
+<iframe src="https://sharecad.org/cadframe/load?url=http://www.cadsofttools.com/dwgviewer/floorplan.dwg" width="100%" height="500"></iframe>
+{% elif file_type == 'application/vnd.sketchup.skp' %}
+<!-- Załadowanie pliku SKP używając SketchUp Web Viewer (przykładowo) -->
+<iframe src="https://3dwarehouse.sketchup.com/embed/d172b590-64d6-43a2-92e2-00e4a3b37280?token=GDXK8-BfyW0=&binaryName=s21"  width="100%" height="500" allowfullscreen></iframe>
+{% endif %}
+{% endif %}
+
+
+</div>
+<script>
+
+document.getElementById("projectSelect").onchange = function() {
+    const projectId = this.value;
+    console.log(projectId);
+    // Jeśli projekt nie jest wybrany, wyczyść listę plików
+    if (!projectId) {
+        document.getElementById("fileSelect").innerHTML = "<option value=''>-- Wybierz plik --</option>";
+        return;
+    }
+
+    // Pobierz pliki dla wybranego projektu używając AJAX
+    fetch("/get_files_for_project/" + projectId + "/")
+    .then(response => response.json())
+    .then(data => {
+        const fileSelect = document.getElementById("fileSelect");
+        // Wyczyść obecne opcje
+        fileSelect.innerHTML = "<option value=''>-- Wybierz plik --</option>";
+
+        // Dodaj nowe opcje do listy
+        data.forEach(file => {
+            const option = document.createElement("option");
+            option.value = file.id;
+            option.textContent = file.name;
+            fileSelect.appendChild(option);
+        });
+    });
+};
+
+document.getElementById("fileSelect").onchange = function() {
+    window.location.href = "/file_viewer/?project=" + document.getElementById("projectSelect").value + "&file=" + this.value;
+};
+
+</script>
+
+{% endblock %}
