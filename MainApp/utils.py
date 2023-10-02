@@ -1,5 +1,8 @@
 import os
+from datetime import date
 from mimetypes import guess_type
+
+from django.core.serializers.json import DjangoJSONEncoder
 
 from .models import FileTypes, FileExtensions
 
@@ -27,3 +30,9 @@ def get_or_create_file_extension(file_name):
     _, ext = os.path.splitext(file_name)
     file_extension, created = FileExtensions.objects.get_or_create(extension=ext)
     return file_extension
+
+class ExtendedEncoder(DjangoJSONEncoder):
+    def default(self, o):
+        if isinstance(o, date):
+            return o.isoformat()
+        return super().default(o)

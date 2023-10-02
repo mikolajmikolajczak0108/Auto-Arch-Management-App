@@ -1,5 +1,5 @@
 from django import forms
-from .models import Users, Projects, ProjectMembers, ProjectComments
+from .models import Users, Projects, ProjectMembers, ProjectComments, Investors
 from .models import Users, ProjectUserRoles
 import hashlib
 
@@ -85,3 +85,12 @@ class EmployeeForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+class AddProjectForm(forms.ModelForm):
+    class Meta:
+        model = Projects
+        fields = ['project_name', 'description', 'start_date', 'end_date', 'priority']
+
+class AddInvestorForm(forms.ModelForm):
+    class Meta:
+        model = Investors
+        fields = ['investor_name', 'investor_address', 'investor_phone', 'investor_email']

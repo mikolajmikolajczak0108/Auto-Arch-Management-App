@@ -31,12 +31,12 @@
         <li class="list-group-item"><a class="nav-link" href="{% url 'employee_panel' %}">Pracownicy</a></li>
         <li class="list-group-item"><a class="nav-link" href="{% url 'project_list' %}">Lista projektów</a></li>
         <li class="list-group-item"><a class="nav-link" href="{% url 'file_viewer' %}">Podgląd Plików</a></li>
-        <li class="list-group-item"><a class="nav-link" href="/director/statistics">Statystyki</a></li>
+        <li class="list-group-item"><a class="nav-link" href="{% url 'statistics' %}">Statystyki</a></li>
         {% endif %}
         {% if user.user_role == 'projektant' %}
-        <li class="list-group-item"><a class="nav-link" href="/employee/projects">Projekty</a></li>
-        <li class="list-group-item"><a class="nav-link" href="/employee/statistics">Moje statystyki</a></li>
-        <li class="list-group-item"><a class="nav-link" href="/employee/messages">Wiadomości</a></li>
+        <li class="list-group-item"><a class="nav-link" href="{% url 'worker_project_list' %}">Projekty</a></li>
+        <li class="list-group-item"><a class="nav-link" href="{% url 'worker_statistics' %}">Moje statystyki</a></li>
+        <li class="list-group-item"><a class="nav-link" href="{% url 'file_viewer' %}">Podgląd Plików</a></li>
         {% endif %}
     </ul>
 

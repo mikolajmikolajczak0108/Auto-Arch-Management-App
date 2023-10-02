@@ -4,6 +4,8 @@
 
 {% block content %}
     <link rel="stylesheet" href="{% static '/css/projects.css' %}">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <div class="container mt-5">
   <h1 class="mb-4">Lista Projektów</h1>
     <!-- Sekcja filtrów i wyszukiwania -->
@@ -78,6 +80,7 @@
             </p>
             <p class="card-text">{{ project.description|truncatechars:100 }}</p>
             <a href="{% url 'project_detail' project.project_id %}" class="btn btn-primary">Szczegóły</a>
+            <button class="btn btn-danger delete-project" data-project-id="{{ project.project_id }}">Usuń</button>
           </div>
         </div>
             </a>
@@ -87,6 +90,59 @@
         <p>Brak projektów.</p>
       </div>
     {% endfor %}
+    <div class="col-md-4">
+    <div class="card mb-4 add-project-card" data-toggle="modal" data-target="#addProjectModal">
+        <div class="card-body">
+            <h5 class="card-title text-center">
+                <span class="plus-icon">+</span><br>
+                Dodaj Projekt
+            </h5>
+        </div>
+    </div>
+</div>
+  </div>
+  <!-- Add Project Modal -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" role="dialog" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addProjectModalLabel">Dodaj Projekt</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{% url 'add_project' %}">
+          {% csrf_token %}
+          {{ add_project_form.as_p }}
+          <button type="submit" class="btn btn-primary">Dodaj</button>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
+</div>
+
+<script>
+  $(document).ready(function() {
+    $('.delete-project').click(function() {
+      const projectId = $(this).data('project-id');
+      const userConfirmed = confirm('Czy na pewno chcesz usunąć ten projekt?');
+
+      if (userConfirmed) {
+        $.post("{% url 'delete_project' %}", {
+          project_id: projectId,
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        }, function(data) {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Nie udało się usunąć projektu.');
+          }
+        });
+      }
+    });
+  });
+</script>
+
 {% endblock %}

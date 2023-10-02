@@ -13,9 +13,6 @@
 }
 
 
-
-
-
 </style>
 <div class="container mt-4">
     <h1 class="text-center">{{ project.project_name }}</h1>
@@ -52,13 +49,11 @@
                             <p class="card-text">{{ file.description }}</p>
                             <a href="#" data-file-id="{{ file.id }}" class="btn btn-danger delete-file">Usuń</a>
                             <a href="#" data-file-id="{{ file.id }}" class="btn btn-warning replace-file">Podmień</a>
-
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
-
             <form id="upload-files-form" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="upload_files" value="true">
@@ -68,20 +63,19 @@
         </div>
     </div>
 
-
     <!-- Investors -->
-<div class="card mb-4">
-    <div class="card-header">
-        <h4>Inwestorzy <button class="btn btn-primary float-right" data-toggle="modal" data-target="#addInvestorModal">Dodaj Inwestora</button></h4>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Inwestorzy</h4>
+        </div>
+        <div class="card-body">
+            <ul>
+                {% for investor in investors %}
+                <li>{{ investor.investor_name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-    <div class="card-body">
-        <ul>
-            {% for investor in investors %}
-            <li>{{ investor.investor_name }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
 
     <!-- Employees -->
     <div class="card mb-4">
@@ -95,7 +89,6 @@
                 <tr>
                     <th>Imię i nazwisko</th>
                     <th>Rola</th>
-                    <th>Akcje</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -103,28 +96,10 @@
                 <tr>
                     <td>{{ member.user.username }}</td>
                     <td>{{ member.user.user_role }}</td>
-                    <td>
-                        <form method="post" action="">
-                            {% csrf_token %}
-                            <input type="hidden" name="remove_member_id" value="{{ member.id }}">
-                            <button type="submit" class="btn btn-danger btn-sm">Usuń</button>
-                        </form>
-
-                    </td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
-
-            <hr>
-
-            <h5>Dodaj pracownika do projektu</h5>
-            <form method="post" action="" id="addMemberForm">
-                {% csrf_token %}
-                <input type="hidden" name="project" value="{{ project.project_id }}">
-                {{ add_member_form.user.label_tag }} {{ add_member_form.user }}
-                <button type="submit" class="btn btn-primary">Dodaj</button>
-            </form>
         </div>
     </div>
 
@@ -161,27 +136,6 @@
             </form>
         </div>
     </div>
-<!-- Add Investor Modal -->
-<div class="modal fade" id="addInvestorModal" tabindex="-1" role="dialog" aria-labelledby="addInvestorModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addInvestorModalLabel">Dodaj Inwestora</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form method="post" action="{% url 'add_investor' project.project_id %}">
-          {% csrf_token %}
-          {{ add_investor_form.as_p }}
-          <button type="submit" class="btn btn-primary">Dodaj</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -195,7 +149,7 @@
             const formData = new FormData();
             formData.append('delete_file_id', fileId);
 
-            fetch(`/director/projects/{{ project.project_id }}/`, {  // Załóżmy, że `project_id` jest dostępny jako zmienna globalna
+            fetch(`/worker/projects/{{ project.project_id }}/`, {  // Załóżmy, że `project_id` jest dostępny jako zmienna globalna
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -225,7 +179,7 @@
                 formData.append('replace_file_id', fileId);
                 formData.append('new_file', file);
 
-                fetch(`/director/projects/{{ project.project_id }}/`, {  // Załóżmy, że `project_id` jest dostępny jako zmienna globalna
+                fetch(`/worker/projects/{{ project.project_id }}/`, {  // Załóżmy, że `project_id` jest dostępny jako zmienna globalna
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -247,10 +201,3 @@
 
 </script>
 {% endblock %}
-
-
-
-
-
-
-

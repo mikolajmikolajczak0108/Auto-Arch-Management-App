@@ -2,21 +2,23 @@ import hashlib
 import json
 from datetime import datetime, timedelta
 from django.contrib.auth import login, logout
+from django.db.models.functions import TruncMonth
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 from django.shortcuts import redirect
 from .forms import AddProjectMemberForm, MessageForm, \
-    AddProjectCommentForm, ChangeRoleForm, EmployeeForm
+    AddProjectCommentForm, EmployeeForm, AddProjectForm, AddInvestorForm
 from .models import Projects, Users, FileTypes, FileExtensions, Files, ProjectFiles, Investors, Messages, \
     MessageAttachments, ProjectMembers, ProjectComments
-from django.db.models import Q
+from django.db.models import Q, F
 from django.urls import reverse
 from django.http import JsonResponse
 from django.contrib import messages
-from .utils import get_or_create_file_type, get_or_create_file_extension, custom_guess_type
+from .utils import get_or_create_file_type, get_or_create_file_extension, custom_guess_type, ExtendedEncoder
+from django.db.models import Count
+from django.utils import timezone
 
 
 def welcome(request):
@@ -46,7 +48,7 @@ def login_view(request):
                 if user.user_role in ['administrator', 'dyrektor']:
                     return redirect('project_list')  # Zmień na odpowiednią nazwę URL-a projektów
                 else:
-                    return redirect('welcome')  # Przekierowanie na inną stronę dla innych użytkowników
+                    return redirect('worker_project_list')   # Przekierowanie na inną stronę dla innych użytkowników
             else:
                 # Obsłuż błąd logowania, na przykład wyświetl błąd na stronie
                 error_message = "Błędny login lub hasło. Spróbuj ponownie."
@@ -103,12 +105,32 @@ def project_list_view(request):
                 Q(description__icontains=search_term)
             )
 
-        return render(request, 'Director/projects_list.html', {'projects': projects})
+        add_project_form = AddProjectForm()
+        return render(request, 'Director/projects_list.html',
+                      {'projects': projects, 'add_project_form': add_project_form})
 
     else:
         return render(request, 'access_denied.html')
 
+@login_required
+def add_project_view(request):
+    if request.method == 'POST':
+        form = AddProjectForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('project_list'))
+        return redirect(reverse('project_list'))
 
+@login_required
+def delete_project_view(request):
+    if request.method == 'POST':
+        project_id = request.POST.get('project_id')
+        try:
+            project = Projects.objects.get(project_id=project_id)
+            project.delete()
+            return JsonResponse({'success': True})
+        except Projects.DoesNotExist:
+            return JsonResponse({'success': False})
 @login_required
 def project_detail_view(request, project_id):
     user = request.user
@@ -191,7 +213,7 @@ def project_detail_view(request, project_id):
                     return redirect(f'/director/projects/{project_id}/')
                 else:
                     print("Form is invalid:", add_member_form.errors)
-
+        add_investor_form = AddInvestorForm()
         context = {
             'project': project,
             'files': files,
@@ -199,7 +221,8 @@ def project_detail_view(request, project_id):
             'project_members': project_members,
             'add_member_form': add_member_form,
             'add_comment_form': add_comment_form,
-            'project_comments': project_comments
+            'project_comments': project_comments,
+            'add_investor_form': add_investor_form
         }
 
         return render(request, 'Director/project_detail.html', context)
@@ -207,7 +230,19 @@ def project_detail_view(request, project_id):
     else:
         return render(request, 'access_denied.html')
 
-
+@login_required
+def add_investor_view(request, project_id):
+    if request.method == 'POST':
+        form = AddInvestorForm(request.POST)
+        if form.is_valid():
+            new_investor = form.save(commit=False)
+            new_investor.project_id = Projects.objects.get(project_id=project_id)
+            new_investor.save()
+            return redirect('project_detail', project_id=project_id)
+    else:
+        form = AddInvestorForm()
+    return render(request, 'add_investor.html', {'form': form})
+@login_required
 def employee_panel(request):
     if request.method == 'POST':
         form = EmployeeForm(request.POST, request.FILES)
@@ -229,6 +264,7 @@ def employee_panel(request):
     return render(request, 'Director/employees_panel.html', context)
 
 
+@login_required
 def employee_detail_view(request, user_id):
     employee = get_object_or_404(Users, user_id=user_id)
     project_members = ProjectMembers.objects.filter(user=employee)
@@ -244,6 +280,8 @@ def employee_detail_view(request, user_id):
     })
 
 
+
+@login_required
 def delete_employee_view(request, user_id):
     employee = get_object_or_404(Users, user_id=user_id)
     if request.method == 'POST':
@@ -254,6 +292,7 @@ def delete_employee_view(request, user_id):
         return HttpResponseRedirect(reverse('employee_detail', args=[user_id]))
 
 
+@login_required
 def change_role_view(request, user_id):
     employee = get_object_or_404(Users, user_id=user_id)
     if request.method == 'POST':
@@ -265,6 +304,7 @@ def change_role_view(request, user_id):
     return HttpResponseRedirect(reverse('employee_detail', args=[user_id]))  # Wrócimy do strony pracownika
 
 
+@login_required
 def add_to_project_view(request, user_id):
     if request.method == "POST":
         project_id = request.POST.get('project_id')
@@ -274,6 +314,7 @@ def add_to_project_view(request, user_id):
         return redirect('employee_detail', user_id=user_id)
 
 
+@login_required
 def send_message(request):
     if request.method == 'POST':
         form = MessageForm(request.POST, request.FILES)
@@ -335,6 +376,8 @@ def send_message(request):
             return JsonResponse({'status': 'error', 'errors': form.errors})
 
 
+
+@login_required
 def get_files_for_project(request, project_id):
     print(project_id)
     files = ProjectFiles.objects.filter(project_id=project_id)
@@ -344,6 +387,8 @@ def get_files_for_project(request, project_id):
     return JsonResponse(files_list, safe=False)
 
 
+
+@login_required
 def file_viewer(request):
     selected_project_id = request.GET.get('project')
     selected_file_id = request.GET.get('file')
@@ -353,11 +398,11 @@ def file_viewer(request):
         if selected_project_id:
             files = ProjectFiles.objects.filter(project_id=selected_project_id)
         else:
-            files=ProjectFiles.objects.filter(project_id=1)
+            files = ProjectFiles.objects.filter(project_id=1)
         selected_file = get_object_or_404(ProjectFiles, id=selected_file_id)
         file_type = selected_file.file_type.file_type  # uzyskaj właściwy typ pliku
     else:
-        files=[]
+        files = []
         selected_file = None
         file_type = None
     if selected_file_id:
@@ -376,3 +421,35 @@ def file_viewer(request):
         'current_url': current_url,
         'image_types': image_types  # Dodaj to
     })
+
+
+
+@login_required
+def statistics_view(request):
+    if request.method == "GET":
+        ongoing_projects = Projects.objects.filter(is_completed=False).annotate(month=TruncMonth('start_date')).values(
+            'month').annotate(count=Count('project_id')).order_by('month')
+        user_projects = Projects.objects.filter(is_completed=False).values('projectmembers__user_id').annotate(
+            count=Count('project_id'),
+            username=F('projectmembers__user__username')
+        ).order_by('projectmembers__user_id')
+        project_files = ProjectFiles.objects.values('project__project_name').annotate(
+            count=Count('file'),
+            project_name=F('project__project_name')  # Include project_name in the output
+        ).order_by('project__project_name')
+        completed_projects_time = Projects.objects.filter(is_completed=True).annotate(
+            time=F('end_date') - F('start_date'))
+        investor_projects = Investors.objects.values('investor_name').annotate(count=Count('project_id')).order_by(
+            'investor_name')
+        print(json.dumps(list(user_projects.values()), cls=ExtendedEncoder))
+        context = {
+            'ongoing_projects': json.dumps(list(ongoing_projects.values()), cls=ExtendedEncoder),
+            'user_projects': json.dumps(list(user_projects.values()), cls=ExtendedEncoder),
+            'project_files': json.dumps(list(project_files.values()), cls=ExtendedEncoder),
+            'completed_projects_time': json.dumps(list(completed_projects_time.values()), cls=ExtendedEncoder),
+            'investor_projects': json.dumps(list(investor_projects.values()), cls=ExtendedEncoder),
+        }
+        if 'HTTP_X_REQUESTED_WITH' in request.META and request.META['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest':
+            return JsonResponse(context)
+        else:
+            return render(request, 'Director/statistics.html')

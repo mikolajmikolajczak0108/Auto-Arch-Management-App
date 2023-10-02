@@ -99,6 +99,16 @@
   margin-bottom: 20px;
 }
 
+.add-project-card {
+    border: 2px dashed #007bff;
+    cursor: pointer;
+}
+
+.plus-icon {
+    font-size: 48px;
+    color: #007bff;
+}
+
   /* Keyframes for card appearing animation */
   @keyframes appear {
     to {

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="container mt-4">
+    <h1 class="text-center">Moje statystyki</h1>
+    <hr>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Projekty Łącznie</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ project_count }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Liczba komentarzy</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ comment_count }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header">Liczba dodanych plików</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ file_count }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Wiadomości</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ message_count }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <canvas id="workerChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+   <!-- Worker Details -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Moje dane</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Nazwa użytkownika:</strong> {{ current_user.username }}</p>
+            <p><strong>Rola:</strong> {{ current_user.user_role }}</p>
+            <p><strong>Data dołączenia:</strong> {{ current_user.date_joined }}</p>
+        </div>
+    </div>
+
+    <!-- Projects by Date -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Ostatnie projekty</h4>
+        </div>
+        <div class="card-body">
+            <ul>
+                {% for project in projects_by_date %}
+                    <li>{{ project.project_name }} - {{ project.start_date }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Projects in the Last Year -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <canvas id="projectsByMonthChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script>
+    var ctx = document.getElementById('workerChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Projekty łącznie', 'Liczba komentarzy', 'Pliki', 'Wiadomości'],
+            datasets: [{
+                label: 'Ogólne Statystyki',
+                data: [{{ project_count }}, {{ comment_count }}, {{ file_count }}, {{ message_count }}],
+                backgroundColor: [
+                    'rgba(0, 123, 255, 0.5)',
+                    'rgba(40, 167, 69, 0.5)',
+                    'rgba(23, 162, 184, 0.5)',
+                    'rgba(255, 193, 7, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(0, 123, 255, 1)',
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(23, 162, 184, 1)',
+                    'rgba(255, 193, 7, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    // New Chart for Projects by Month
+    var ctx2 = document.getElementById('projectsByMonthChart').getContext('2d');
+    var myChart2 = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: [{% for data in projects_by_month %}'{{ data.month|date:"M Y" }}',{% endfor %}],
+            datasets: [{
+                label: 'Projekty',
+                data: [{% for data in projects_by_month %}{{ data.c }},{% endfor %}],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
