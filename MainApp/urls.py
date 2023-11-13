@@ -18,5 +18,6 @@ urlpatterns = [
     path('get_files_for_project/<int:project_id>/', views.get_files_for_project, name='get_files_for_project'),
     path('file_viewer/', views.file_viewer, name='file_viewer'),
     path('director/statistics/', views.statistics_view, name='statistics'),
-    # Dodaj inne URL-y tutaj
+    path('download_attachment/<int:attachment_id>/', views.download_attachment, name='download_attachment'),
+    path('delete_message/<int:message_id>/', views.delete_message, name='delete_message'),
 ]

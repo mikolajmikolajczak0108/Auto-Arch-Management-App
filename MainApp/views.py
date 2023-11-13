@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timedelta
 from django.contrib.auth import login, logout
 from django.db.models.functions import TruncMonth
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, FileResponse
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -376,7 +376,15 @@ def send_message(request):
             return JsonResponse({'status': 'error', 'errors': form.errors})
 
 
+def download_attachment(request, attachment_id):
+    attachment = MessageAttachments.objects.get(pk=attachment_id)
+    response = FileResponse(attachment.file_id.file)
+    return response
 
+def delete_message(request, message_id):
+    message = Messages.objects.get(pk=message_id)
+    message.delete()
+    return JsonResponse({'status': 'success'})
 @login_required
 def get_files_for_project(request, project_id):
     print(project_id)

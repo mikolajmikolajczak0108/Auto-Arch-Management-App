@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Witaj w AutoArch</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Dodaj tutaj linki do innych plików CSS lub JS, które chcesza użyć -->
-    <style>
-        body {
-            background-image: url('{% static "media/welcome/welcome.png" %}'); /* Użyj odpowiedniej ścieżki do obrazka tła */
+    <link rel="stylesheet" href="{% static '/css/welcome.css' %}">
+</head>
+<style>
+            body {
+            background-image: url('{% static "media/welcome/welcome.png" %}');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: right center;
@@ -20,103 +21,7 @@
             animation: fadeIn 2s ease-in-out;
         }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-
-        .welcome-text {
-            animation: slide-left 1s ease-in-out, text-fade-in 2s ease-in-out;
-        }
-
-        .btn-login {
-            animation: slide-up 1s ease-in-out, btn-fade-in 2s ease-in-out;
-        }
-
-        h1 {
-            font-size: 3rem; /* Zwiększ rozmiar czcionki tytułu */
-            color: #ffffff; /* Zmień kolor na biały */
-            text-shadow: 2px 2px 4px #000000; /* Dodaj cień do tekstu */
-        }
-
-        .btn-login a {
-            background-color: #00004d; /* Zmień kolor tła przycisku */
-            border-color: #00001a; /* Zmień kolor obramowania przycisku */
-            color: #ffffff; /* Zmień kolor tekstu przycisku */
-        }
-
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slide-left {
-            0% {
-                transform: translateX(-100%);
-                opacity: 0;
-            }
-            100% {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes text-fade-in {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slide-up {
-            0% {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes btn-fade-in {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-.fade-out {
-    animation: fadeOut ease 1s;
-    -webkit-animation: fadeOut ease 1s;
-    -moz-animation: fadeOut ease 1s;
-    -o-animation: fadeOut ease 1s;
-    -ms-animation: fadeOut ease 1s;
-    animation-fill-mode: forwards;
-}
-
-@keyframes fadeOut {
-    0% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-        display: none;
-    }
-}
-
-    </style>
-</head>
+</style>
 <body>
 <div class="container">
 

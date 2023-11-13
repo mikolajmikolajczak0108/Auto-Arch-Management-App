@@ -143,6 +143,21 @@
       }
     });
   });
-</script>
 
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.querySelector('form');
+
+    if(form) {
+        form.addEventListener('submit', function() {
+            setTimeout(function() {
+                console.log("Mosby");
+                location.reload(true);
+            }, 5);
+        });
+    }
+});
+
+</script>
 {% endblock %}

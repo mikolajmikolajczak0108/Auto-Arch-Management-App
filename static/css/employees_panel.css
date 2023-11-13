@@ -1,0 +1,71 @@
+
+    .row > div {
+        margin-bottom: 1rem;
+    }
+    .card {
+        transition: transform .2s ease;
+        border: 1px solid #ddd;
+    }
+    .card:hover {
+        transform: scale(1.05);
+        border: 1px solid #333;
+    }
+    .card-img-top {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    .card-title {
+        font-weight: bold;
+        color: #333;
+    }
+    .card-text {
+        color: #555;
+    }
+    .status-dot {
+        height: 12px;
+        width: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    .active {
+        background-color: #00c851;
+    }
+    .inactive {
+        background-color: #ff4444;
+    }
+    .status-text {
+        display: inline-block;
+    }
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-control-file {
+    display: inline-block;
+}
+
+.btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+
+

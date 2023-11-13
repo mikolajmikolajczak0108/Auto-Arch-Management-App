@@ -91,7 +91,13 @@
             </div>
             <div class="message-content">
                 <span class="message-text">{{ message.message_text }}</span>
+                {% if message.attachment_set.exists %}
+                <a href="{% url 'download_attachment' message.attachment_set.first.id %}" class="btn btn-primary">Pobierz
+                    załącznik</a>
+                {% endif %}
                 <button class="reply-button" data-message-id="{{ message.message_id }}">Odpowiedz</button>
+                <!-- Add a button for deleting the message -->
+               <button class="delete-button btn btn-danger" data-message-id="{{ message.message_id }}" onclick="deleteMessage(this)">Usuń</button>
             </div>
         </div>
         {% endfor %}
@@ -100,7 +106,21 @@
 
 
 <script>
-
+// Pobierz token CSRF z ciasteczka
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
     // Skrypt do pokazywania i ukrywania panelu wiadomości
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -122,21 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
             item.classList.toggle('active');
         });
     });
-// Pobierz token CSRF z ciasteczka
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
+
 
 const csrftoken = getCookie('csrftoken');
     const inboxIcon = document.getElementById('inbox-icon');
@@ -168,12 +174,13 @@ const csrftoken = getCookie('csrftoken');
         })
         .then(response => response.json())
         .then(data => {
-            // Obsłuż odpowiedź
+            location.reload();
         })
         .catch(error => {
             console.error('Błąd:', error);
         });
     });
+
     // Nowy kod dla przycisków odpowiedzi
     const replyButtons = document.querySelectorAll('.reply-button');
     replyButtons.forEach(button => {
@@ -221,6 +228,27 @@ const csrftoken = getCookie('csrftoken');
 });
 });
 
+
+function deleteMessage(button) {
+    const messageId = button.getAttribute('data-message-id');
+    const csrftoken = getCookie('csrftoken');
+    fetch(`/delete_message/${messageId}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': csrftoken,
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            button.closest('.message-item').remove();
+        } else {
+            alert('Błąd podczas usuwania wiadomości.');
+        }
+    })
+    .catch(error => {
+        console.error('Błąd:', error);
+    });
+}
 </script>
 </body>
 <script>
@@ -269,6 +297,7 @@ const csrftoken = getCookie('csrftoken');
 
         // Inicjalizacja skryptu po załadowaniu strony
         window.addEventListener('load', init);
+
 
 
 </script>
